@@ -93,6 +93,7 @@ for (i = 1000000000; i > 1; i /= 10)
 if (_abs_ / i)
 {
 __putchar('0' + current / i)
+	;
 count++;
 }
 current %= i;
