@@ -1,115 +1,87 @@
-#include "main.h"
+#include "shell.h"
 
 
 
 /**
  *
- *  * main - main entry point of the program
+ *  * main - entry point
  *
- *   * @ac: count of command line arguments
+ *   * @ac: arg count
  *
- *    * @av: vector of command line arguments
+ *    * @av: arg vector
  *
  *     *
  *
- *      * Description: first version (version 0.1) of the simple shell
+ *      * Return: 0 on success, 1 on error
  *
- *       * program (ALX SE project)
- *
- *        * Return: Always 0 (Success)
- *
- *         */
+ *       */
 
 int main(int ac, char **av)
 
 {
 
-		char *word, *command, *line = NULL, **args = NULL, **env = environ;
+		info_t info[] = { INFO_INIT };
 
-			size_t temp, size = 1, n = 0;
-
-				ssize_t num_char;
-
-					void (*func)(char **, char **);
+			int fd = 2;
 
 
 
-						if (ac != 1)
+				asm ("mov %1, %0\n\t"
 
-									return (1);
+								"add $3, %0"
 
-							while (1)
+										: "=r" (fd)
 
-									{
+												: "r" (fd));
 
-												do {
 
-																_puts("#cisfun$ ");
 
-																			num_char = my_getline(&line, &n, STDIN_FILENO);
+					if (ac == 2)
 
-																						if (num_char == -1)
+							{
+
+										fd = open(av[1], O_RDONLY);
+
+												if (fd == -1)
+
+															{
+
+																			if (errno == EACCES)
+
+																								exit(126);
+
+																						if (errno == ENOENT)
 
 																										{
 
-																															free(line), exit(1);
+																															_eputs(av[0]);
 
-																																		} line[num_char - 1] = '\0';
+																																			_eputs(": 0: Can't open ");
 
-																								} while (_strcmp(line, "\0") == 0);
+																																							_eputs(av[1]);
 
-														args = malloc(sizeof(char *) * size);
+																																											_eputchar('\n');
 
-														if (args == NULL)
+																																															_eputchar(BUF_FLUSH);
 
-																	{
+																																																			exit(127);
 
-																					errno = ENOMEM, perror("Error");
+																																																						}
 
-																								free(line);
-
-																											exit(1);
-
-																													} word = _strtok(line, " ");
-
-																while (word != NULL)
-
-																			{
-
-																							args[size - 1] = _strdup(word), temp = size, size++;
-
-																										args = _realloc(args, sizeof(char *) * temp, sizeof(char *) * size);
-
-																													word = _strtok(NULL, " ");
-
-																															}
-
-																		args[size - 1] = NULL, command = get_command(args[0]), word = args[0];
-
-																				args[0] = command, free(word), func = get_func(args[0]);
-
-																						if (func == NULL)
-
-																										errno = ENOENT, perror(av[0]);
-
-																								else
-
-																												func(args, env);
-
-																										free_args(args), size = 1, args = NULL;
+																									return (EXIT_FAILURE);
 
 																											}
 
-								return (0);
+														info->readfd = fd;
+
+															}
+
+						populate_env_list(info);
+
+							read_history(info);
+
+								hsh(info, av);
+
+									return (EXIT_SUCCESS);
 
 }
-
-Footer
-
-© 2022 GitHub, Inc.
-
-Footer navigation
-
-Terms
-
-
